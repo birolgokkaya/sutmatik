@@ -1,0 +1,221 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#ff6fae">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Sütmatik">
+<link rel="manifest" href="manifest.webmanifest">
+<title>Sütmatik</title>
+<style>
+:root{--bg1:#ffe6f2;--bg2:#fff8fb;--text:#2b2430;--muted:#7b6d82;--primary:#ff6fae;--primary2:#e84f94;--secondary:#8d7b96;--danger:#ff5b5b;--ok:#39b980;--border:#f2d8e6}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;min-height:100%;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:var(--text);background:linear-gradient(160deg,var(--bg1),var(--bg2))}
+body{min-height:100vh;padding:calc(18px + env(safe-area-inset-top)) 16px calc(18px + env(safe-area-inset-bottom));display:flex;justify-content:center;align-items:center}
+.app{width:100%;max-width:430px}.title{text-align:center;margin-bottom:16px}h1{margin:0;font-size:38px;letter-spacing:-1px}
+.card{background:rgba(255,255,255,.9);border:1px solid var(--border);border-radius:28px;padding:20px;box-shadow:0 18px 45px rgba(232,79,148,.18)}
+.dose-row{display:grid;grid-template-columns:1fr 116px;gap:10px;align-items:center;margin-bottom:14px}
+label{font-weight:800;font-size:15px}
+select,input{width:100%;border:1px solid var(--border);border-radius:16px;padding:13px;font-size:17px;font-weight:800;color:var(--text);background:white;user-select:auto}
+select{text-align:center;font-size:19px;font-weight:900}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:16px}
+.stat{background:#fff8fb;border:1px solid var(--border);border-radius:20px;padding:14px;text-align:center}
+.label{color:var(--muted);font-size:13px;margin-bottom:5px}.value{font-size:31px;font-weight:900}
+.big{text-align:center;margin:18px 0 22px}#total{font-size:82px;line-height:.95;font-weight:950;letter-spacing:-4px}.unit{color:var(--muted);font-size:18px;margin-top:8px}
+button{appearance:none;-webkit-appearance:none;border:0;width:100%;border-radius:22px;padding:17px 12px;font-size:20px;font-weight:900;color:white;cursor:pointer;touch-action:manipulation}
+button:active{transform:scale(.98);opacity:.92}.primary{min-height:94px;font-size:27px;background:linear-gradient(180deg,var(--primary),var(--primary2));box-shadow:0 12px 22px rgba(232,79,148,.28)}
+.secondary{background:var(--secondary)}.danger{background:var(--danger)}.ok{background:var(--ok)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:12px}.small{font-size:16px;border-radius:18px;padding:14px 10px}
+.history{margin-top:18px;background:#fff8fb;border:1px solid var(--border);border-radius:20px;padding:14px}
+.history-header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:10px}.history-title{font-weight:900;font-size:18px}
+.add-manual{width:42px;height:42px;border-radius:15px;padding:0;font-size:28px;line-height:42px;background:linear-gradient(180deg,var(--primary),var(--primary2))}
+#history{max-height:280px;overflow:auto}.history-empty{color:var(--muted);font-size:14px;line-height:1.5}
+.day-group{border-top:1px solid var(--border);padding-top:12px;margin-top:12px}.day-group:first-child{border-top:0;padding-top:0;margin-top:0}
+.day-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:8px}.day-left{display:flex;align-items:center;gap:8px}.toggle-day{width:32px;height:32px;border-radius:11px;padding:0;font-size:18px;line-height:32px;background:var(--secondary)}
+.day-date{font-weight:900;font-size:15px}.day-total{color:var(--primary2);font-size:14px;font-weight:900;white-space:nowrap}.day-items.collapsed{display:none}
+.history-item{display:grid;grid-template-columns:1fr 64px;gap:10px;align-items:center;padding:9px 0;border-top:1px dashed var(--border)}
+.history-item:first-of-type{border-top:0}.history-text{color:var(--muted);font-size:14px;line-height:1.35;user-select:text}.history-text b{color:var(--text);font-size:15px}.history-note{margin-top:3px;color:var(--text);font-weight:700}
+.delete-one{background:var(--danger);border-radius:14px;padding:10px 8px;font-size:13px}
+.toast{position:fixed;left:16px;right:16px;bottom:calc(18px + env(safe-area-inset-bottom));max-width:430px;margin:auto;background:rgba(43,36,48,.94);color:white;padding:14px 16px;border-radius:18px;text-align:center;font-weight:800;transform:translateY(120px);transition:transform .22s ease;z-index:10}.toast.show{transform:translateY(0)}
+.modal-backdrop{position:fixed;inset:0;background:rgba(43,36,48,.42);display:none;align-items:center;justify-content:center;padding:18px;z-index:20}.modal-backdrop.show{display:flex}
+.modal{width:100%;max-width:390px;background:white;border-radius:26px;border:1px solid var(--border);padding:18px;box-shadow:0 20px 50px rgba(43,36,48,.28);max-height:90vh;overflow:auto}
+.modal-title{font-size:21px;font-weight:950;margin-bottom:8px}.modal-subtitle{color:var(--muted);font-size:14px;margin-bottom:14px;line-height:1.35}.modal label{display:block;margin:10px 0 7px}.modal-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}.modal-actions button{font-size:16px;border-radius:18px;padding:14px 10px}.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+</style>
+</head>
+<body>
+<main class="app">
+<div class="title"><h1>🍼 Sütmatik</h1></div>
+<section class="card">
+<div class="dose-row">
+<label for="dose">Enjektör ml</label>
+<select id="dose"><option value="1">1 ml</option><option value="2">2 ml</option><option value="3">3 ml</option><option value="4">4 ml</option><option value="5" selected>5 ml</option><option value="6">6 ml</option><option value="7">7 ml</option><option value="8">8 ml</option><option value="9">9 ml</option><option value="10">10 ml</option></select>
+</div>
+<div class="stats"><div class="stat"><div class="label">Enjektör</div><div class="value" id="count">0</div></div><div class="stat"><div class="label">Son işlem</div><div class="value" id="last">—</div></div></div>
+<div class="big"><div id="total">0</div><div class="unit">ml toplam süt</div></div>
+<button class="primary" id="addBtn">+ 1 enjektör verdim</button>
+<div class="row"><button class="secondary small" id="undoBtn">Geri al</button><button class="danger small" id="resetBtn">Sıfırla</button></div>
+<div class="row"><button class="ok small" id="saveBtn">Öğünü kaydet</button><button class="secondary small" id="clearBtn">Tüm geçmişi sil</button></div>
+<div class="history">
+<div class="history-header"><div class="history-title">Kayıtlar</div><button class="add-manual" id="manualBtn">+</button></div>
+<div id="history"><div class="history-empty">Henüz kayıt yok.</div></div>
+</div>
+</section>
+</main>
+
+<div class="modal-backdrop" id="noteModal">
+<div class="modal">
+<div class="modal-title">Öğün açıklaması</div>
+<div class="modal-subtitle" id="modalMealInfo"></div>
+<label for="noteInput">Açıklama</label><input id="noteInput" type="text" placeholder="Örn: Gece öğünü">
+<div class="modal-actions"><button class="secondary" id="cancelNoteBtn">Vazgeç</button><button class="ok" id="confirmNoteBtn">Kaydet</button></div>
+</div>
+</div>
+
+<div class="modal-backdrop" id="manualModal">
+<div class="modal">
+<div class="modal-title">Manuel kayıt ekle</div>
+<div class="modal-subtitle">Geçmiş tarihli öğünleri buradan ekleyebilirsin.</div>
+<div class="manual-grid"><div><label for="manualDate">Tarih</label><input id="manualDate" type="date"></div><div><label for="manualTime">Saat</label><input id="manualTime" type="time"></div></div>
+<div class="manual-grid"><div><label for="manualCount">Enjektör sayısı</label><input id="manualCount" type="number" min="1" step="1" value="1"></div><div><label for="manualDose">Enjektör ml</label><select id="manualDose"><option value="1">1 ml</option><option value="2">2 ml</option><option value="3">3 ml</option><option value="4">4 ml</option><option value="5" selected>5 ml</option><option value="6">6 ml</option><option value="7">7 ml</option><option value="8">8 ml</option><option value="9">9 ml</option><option value="10">10 ml</option></select></div></div>
+<label for="manualNote">Açıklama</label><input id="manualNote" type="text" placeholder="Örn: Gece öğünü">
+<div class="modal-actions"><button class="secondary" id="cancelManualBtn">Vazgeç</button><button class="ok" id="confirmManualBtn">Kaydet</button></div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+(function(){
+if("serviceWorker" in navigator){window.addEventListener("load",function(){navigator.serviceWorker.register("./service-worker.js").catch(function(){});});}
+var KEY="sutmatik_state_pwa_v8";
+var OLD_KEYS=["sutmatik_state_pwa_v7","sutmatik_state_pwa_v6","sutmatik_v6","sutmatik_state_pwa_v5","sutmatik_state_pwa_v4","sutmatik_state_pwa_v3","sutmatik_state_pwa_v2","sutmatik_state_pwa_v1"];
+var state={doseMl:5,count:0,lastTime:"",history:[]};
+var collapsedDays={};
+
+var doseEl=document.getElementById("dose"),countEl=document.getElementById("count"),totalEl=document.getElementById("total"),lastEl=document.getElementById("last"),historyEl=document.getElementById("history"),toastEl=document.getElementById("toast");
+var noteModal=document.getElementById("noteModal"),noteInput=document.getElementById("noteInput"),modalMealInfo=document.getElementById("modalMealInfo");
+var manualModal=document.getElementById("manualModal"),manualDate=document.getElementById("manualDate"),manualTime=document.getElementById("manualTime"),manualCount=document.getElementById("manualCount"),manualDose=document.getElementById("manualDose"),manualNote=document.getElementById("manualNote");
+
+function pad(n){return String(n).padStart(2,"0")}
+function isoDay(d){return d.getFullYear()+"-"+pad(d.getMonth()+1)+"-"+pad(d.getDate())}
+function displayTime(d){return pad(d.getHours())+":"+pad(d.getMinutes())}
+function displayDay(key){var p=key.split("-");return p[2]+"."+p[1]+"."+p[0]}
+function totalMl(){return Math.round(state.count*state.doseMl*100)/100}
+function escapeHtml(t){return String(t||"").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;")}
+function showToast(m){toastEl.innerText=m;toastEl.className="toast show";setTimeout(function(){toastEl.className="toast"},1400)}
+function saveState(){try{localStorage.setItem(KEY,JSON.stringify(state))}catch(e){}}
+
+function extractCount(text){var m=String(text||"").match(/—\s*(\d+)\s*enjektör/i);return m?Number(m[1]):0}
+function extractDose(text){var m=String(text||"").match(/x\s*(\d+)\s*ml/i);return m?Number(m[1]):0}
+function normalizeHistory(items){
+if(!Array.isArray(items))return[];
+return items.map(function(item,index){
+ if(typeof item==="string"){
+  var mlM=item.match(/=\s*([0-9]+(?:[\.,][0-9]+)?)\s*ml/i), ml=mlM?Number(mlM[1].replace(",",".")):0;
+  var cM=item.match(/—\s*(\d+)\s*enjektör/i), dM=item.match(/x\s*(\d+)\s*ml/i), dateM=item.match(/(\d{2})\.(\d{2})\.(\d{4})/), timeM=item.match(/\d{2}\.\d{2}\.\d{4}\s+(\d{2}:\d{2})/);
+  var day=dateM?(dateM[3]+"-"+dateM[2]+"-"+dateM[1]):isoDay(new Date()), time=timeM?timeM[1]:displayTime(new Date());
+  return {id:Date.now()+index,ml:ml,count:cM?Number(cM[1]):0,doseMl:dM?Number(dM[1]):0,time:time,note:"",dayKey:day,createdAt:day+"T"+time+":00"};
+ }
+ var created=item.createdAt?new Date(item.createdAt):new Date();
+ var day=item.dayKey||isoDay(created), time=item.time||displayTime(created);
+ return {id:item.id||(Date.now()+index),ml:Number(item.ml)||0,count:Number(item.count)||extractCount(item.text),doseMl:Number(item.doseMl)||extractDose(item.text),time:time,note:item.note||"",dayKey:day,createdAt:item.createdAt||(day+"T"+time+":00")};
+});
+}
+
+function loadState(){
+try{
+ var raw=localStorage.getItem(KEY);
+ if(!raw){for(var i=0;i<OLD_KEYS.length;i++){raw=localStorage.getItem(OLD_KEYS[i]);if(raw)break;}}
+ if(raw){var p=JSON.parse(raw), dose=Number(p.doseMl)||5;state.doseMl=(dose>=1&&dose<=10)?dose:5;state.count=Number(p.count)||0;state.lastTime=p.lastTime||"";state.history=normalizeHistory(p.history);}
+}catch(e){}
+doseEl.value=String(state.doseMl);saveState();render();
+}
+
+function compareDesc(a,b){return new Date(b.createdAt||(b.dayKey+"T"+(b.time||"00:00")+":00"))-new Date(a.createdAt||(a.dayKey+"T"+(a.time||"00:00")+":00"))}
+
+function render(){
+countEl.innerText=state.count;totalEl.innerText=totalMl();lastEl.innerText=state.lastTime||"—";
+if(!state.history.length){historyEl.innerHTML='<div class="history-empty">Henüz kayıt yok.</div>';return;}
+var groups={};state.history.forEach(function(item){var key=item.dayKey||isoDay(new Date(item.createdAt||Date.now()));if(!groups[key])groups[key]=[];groups[key].push(item);});
+historyEl.innerHTML="";
+Object.keys(groups).sort().reverse().forEach(function(key,index){
+ if(collapsedDays[key]===undefined) collapsedDays[key]=index!==0;
+ var items=groups[key].slice().sort(compareDesc);
+ var dayTotal=Math.round(items.reduce(function(s,x){return s+(Number(x.ml)||0)},0)*100)/100;
+ var group=document.createElement("div");group.className="day-group";
+
+ var head=document.createElement("div");head.className="day-head";
+ var left=document.createElement("div");left.className="day-left";
+ var toggle=document.createElement("button");toggle.className="toggle-day";toggle.innerText=collapsedDays[key]?"＋":"−";
+ toggle.onclick=function(){collapsedDays[key]=!collapsedDays[key];render();};
+ var dateNode=document.createElement("div");dateNode.className="day-date";dateNode.innerText=displayDay(key);
+ left.appendChild(toggle);left.appendChild(dateNode);
+ var totalNode=document.createElement("div");totalNode.className="day-total";totalNode.innerText=dayTotal+" ml";
+ head.appendChild(left);head.appendChild(totalNode);group.appendChild(head);
+
+ var itemsWrap=document.createElement("div");itemsWrap.className=collapsedDays[key]?"day-items collapsed":"day-items";
+ items.forEach(function(item){
+  var row=document.createElement("div");row.className="history-item";
+  var text=document.createElement("div");text.className="history-text";
+  var note=item.note?'<div class="history-note">📝 '+escapeHtml(item.note)+'</div>':"";
+  var countText=item.count?item.count+" enjektör":"enjektör";
+  var doseText=item.doseMl?" x "+item.doseMl+" ml":"";
+  text.innerHTML="<b>"+(item.ml||0)+" ml</b><br>"+escapeHtml((item.time||"")+" — "+countText+doseText+" = "+(item.ml||0)+" ml")+note;
+  var btn=document.createElement("button");btn.className="delete-one";btn.innerText="Sil";btn.onclick=function(){deleteHistoryItem(item.id)};
+  row.appendChild(text);row.appendChild(btn);itemsWrap.appendChild(row);
+ });
+ group.appendChild(itemsWrap);
+ historyEl.appendChild(group);
+});
+}
+
+function changeDose(){state.doseMl=Number(doseEl.value);saveState();render();showToast("Enjektör "+state.doseMl+" ml oldu.")}
+function addDose(){state.count+=1;state.lastTime=displayTime(new Date());saveState();render();try{if(navigator.vibrate)navigator.vibrate(30)}catch(e){}}
+function undoDose(){if(state.count<=0){showToast("Geri alınacak kayıt yok.");return;}state.count-=1;state.lastTime=displayTime(new Date());saveState();render();showToast("Son enjektör geri alındı.")}
+function resetCounter(){if(state.count===0){showToast("Sayaç zaten sıfır.");return;}if(!confirm("Mevcut sayacı sıfırlamak istiyor musun?"))return;state.count=0;state.lastTime="";saveState();render();showToast("Sayaç sıfırlandı.")}
+function openNoteModal(){if(state.count===0){showToast("Kaydedilecek süt yok.");return;}modalMealInfo.innerText=totalMl()+" ml öğün kaydedilecek. Açıklama boş bırakılabilir.";noteInput.value="";noteModal.className="modal-backdrop show";setTimeout(function(){noteInput.focus()},120)}
+function closeNoteModal(){noteModal.className="modal-backdrop"}
+function saveMealWithNote(){
+ if(state.count===0){closeNoteModal();showToast("Kaydedilecek süt yok.");return;}
+ var now=new Date(), ml=totalMl(), time=displayTime(now), day=isoDay(now);
+ state.history.push({id:Date.now(),ml:ml,count:state.count,doseMl:state.doseMl,time:time,note:noteInput.value.trim(),dayKey:day,createdAt:day+"T"+time+":00"});
+ collapsedDays[day]=false;
+ state.count=0;state.lastTime="";closeNoteModal();saveState();render();showToast("Öğün kaydedildi.");
+}
+function openManualModal(){
+ var now=new Date();manualDate.value=isoDay(now);manualTime.value=displayTime(now);manualCount.value=1;manualDose.value=String(state.doseMl);manualNote.value="";manualModal.className="modal-backdrop show";
+}
+function closeManualModal(){manualModal.className="modal-backdrop"}
+function saveManualMeal(){
+ var date=manualDate.value,time=manualTime.value,count=Number(manualCount.value),dose=Number(manualDose.value);
+ if(!date||!time){showToast("Tarih ve saat gerekli.");return}
+ if(!count||count<1){showToast("Enjektör sayısı geçerli değil.");return}
+ if(!dose||dose<1||dose>10){showToast("Ml değeri geçerli değil.");return}
+ var ml=Math.round(count*dose*100)/100;
+ state.history.push({id:Date.now(),ml:ml,count:count,doseMl:dose,time:time,note:manualNote.value.trim(),dayKey:date,createdAt:date+"T"+time+":00"});
+ collapsedDays[date]=false;
+ closeManualModal();saveState();render();showToast("Manuel kayıt eklendi.");
+}
+function clearHistory(){if(!state.history.length){showToast("Geçmiş zaten boş.");return;}if(!confirm("Tüm kayıtları temizlemek istiyor musun?"))return;state.history=[];collapsedDays={};saveState();render();showToast("Tüm geçmiş silindi.")}
+function deleteHistoryItem(id){if(!confirm("Bu kaydı silmek istiyor musun?"))return;state.history=state.history.filter(function(item){return item.id!==id});saveState();render();showToast("Kayıt silindi.")}
+
+doseEl.onchange=changeDose;
+document.getElementById("addBtn").onclick=addDose;
+document.getElementById("undoBtn").onclick=undoDose;
+document.getElementById("resetBtn").onclick=resetCounter;
+document.getElementById("saveBtn").onclick=openNoteModal;
+document.getElementById("clearBtn").onclick=clearHistory;
+document.getElementById("cancelNoteBtn").onclick=closeNoteModal;
+document.getElementById("confirmNoteBtn").onclick=saveMealWithNote;
+document.getElementById("manualBtn").onclick=openManualModal;
+document.getElementById("cancelManualBtn").onclick=closeManualModal;
+document.getElementById("confirmManualBtn").onclick=saveManualMeal;
+noteModal.onclick=function(e){if(e.target===noteModal)closeNoteModal()};
+manualModal.onclick=function(e){if(e.target===manualModal)closeManualModal()};
+noteInput.onkeydown=function(e){if(e.key==="Enter")saveMealWithNote()};
+loadState();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,10 @@
+{
+  "name": "Sütmatik",
+  "short_name": "Sütmatik",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#fff8fb",
+  "theme_color": "#ff6fae",
+  "orientation": "portrait"
+}
