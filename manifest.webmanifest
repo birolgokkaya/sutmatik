@@ -4,7 +4,15 @@
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#fff8fb",
-  "theme_color": "#ff6fae",
-  "orientation": "portrait"
+  "background_color": "#e8f4ff",
+  "theme_color": "#4da6ff",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "biberon.jpeg",
+      "sizes": "512x512",
+      "type": "image/jpeg",
+      "purpose": "any maskable"
+    }
+  ]
 }
